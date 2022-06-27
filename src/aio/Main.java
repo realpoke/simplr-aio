@@ -1,6 +1,8 @@
 package aio;
 
+import events.LoginEvent;
 import paint.*;
+import utils.Sleep;
 import utils.Timer;
 import utils.file_manager.FileManager;
 import utils.method_provider.CustomMethodProvider;
@@ -8,6 +10,7 @@ import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
 import tasks.Task;
 import tasks.task_executor.TaskExecutor;
+import utils.method_provider.ExecutionFailedException;
 import utils.method_provider.providers.CommandLine;
 
 import java.util.ArrayList;
@@ -41,6 +44,11 @@ public final class Main extends Script {
             mode.setup(getBot(), customMethodProvider, scriptInfo);
             tasks = mode.getTasks();
         } else {
+            if (customMethodProvider.getCommandLine().getString(CommandLine.Commands.BOT_LOGIN) == null || customMethodProvider.getCommandLine().getString(CommandLine.Commands.BOT_PASSWORD) == null) {
+                logger.info("No login info found, stopping...");
+                exit();
+            }
+
             logger.info("Using botting mode!");
             BottingMode mode = new BottingMode();
             mode.setup(getBot(), customMethodProvider, scriptInfo);
@@ -65,6 +73,9 @@ public final class Main extends Script {
         startPainting();
 
         runTime = new Timer(0L);
+
+        Sleep.sleepUntil(() -> !getClient().isLoading(), 30_000);
+
         startupTime.stop();
         logger.info("Fully loaded in " + startupTime);
     }
@@ -73,11 +84,30 @@ public final class Main extends Script {
     public int onLoop() throws InterruptedException {
 
         if (!customMethodProvider.getCommandLine().getBoolean(CommandLine.Commands.ACCOUNT_CHECKER)) {
-             if (!getClient().isLoggedIn() && myPlayer().isVisible()) {
-                logger.debug("Waiting to be fully loaded...");
-                customMethodProvider.getCanvasUtil().setTitle(scriptInfo, "Loading");
-                return random(1_200, 1_800);
-            } else if (customMethodProvider.getCommandLine().getBoolean(CommandLine.Commands.DUMP_ON_STOP) && displayName == null && myPlayer() != null && myPlayer().getName() != null) {
+             if (!customMethodProvider.getClient().isLoggedIn() && !getClient().isLoading()) {
+                 customMethodProvider.getCanvasUtil().setTitle(scriptInfo, "Loading");
+
+                 customMethodProvider.logger.info("Logging into bot account...");
+                 LoginEvent loginEvent = new LoginEvent(customMethodProvider.getCommandLine().getString(CommandLine.Commands.BOT_LOGIN), customMethodProvider.getCommandLine().getString(CommandLine.Commands.BOT_PASSWORD), 3, true);
+                 customMethodProvider.getBot().addLoginListener(loginEvent);
+
+                 try {
+                     customMethodProvider.execute(loginEvent);
+                 } catch (InterruptedException e) {
+                     throw new ExecutionFailedException("Failed execute LoginEvent with: " + customMethodProvider.getCommandLine().getString(CommandLine.Commands.BOT_LOGIN));
+                 } catch (ExecutionFailedException e) {
+                     // TODO:  If bot is banned we should report it to the web server and close the client!
+                     customMethodProvider.logger.info(e.getMessage() + " - " + customMethodProvider.getCommandLine().getString(CommandLine.Commands.BOT_LOGIN));
+                     exit();
+                 }
+
+                 if (myPlayer() != null && myPlayer().isVisible()) {
+                     customMethodProvider.logger.info("Setting random window size...");
+                     customMethodProvider.getCanvasUtil().setRandomSize();
+                 }
+
+                 return random(1_200, 1_800);
+             } else if (customMethodProvider.getCommandLine().getBoolean(CommandLine.Commands.DUMP_ON_STOP) && displayName == null && myPlayer() != null && myPlayer().getName() != null) {
                  displayName = myPlayer().getName();
              }
         }
@@ -86,7 +116,7 @@ public final class Main extends Script {
             customMethodProvider.getCanvasUtil().setTitle(scriptInfo, "Done");
             logger.info("Task executor completed, stopping...");
             exit();
-        } else {
+        } else if (customMethodProvider.getClient().isLoggedIn()) {
             if (customMethodProvider.getCanvasUtil() != null) {
                 customMethodProvider.getCanvasUtil().setTitle(scriptInfo, "Running");
             }

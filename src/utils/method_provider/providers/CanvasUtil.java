@@ -27,9 +27,11 @@ public class CanvasUtil extends CustomMethodProvider {
     }
 
     public void resetSize() {
-        JFrame frame = getJFrame();
-        frame.setSize(originalSize);
-        logger.info("Resetting window size (" + originalSize.getWidth() + ", " + originalSize.getHeight() + ")...");
+        if (originalSize != getJFrame().getSize()) {
+            JFrame frame = getJFrame();
+            frame.setSize(originalSize);
+            logger.info("Resetting window size (" + originalSize.getWidth() + ", " + originalSize.getHeight() + ")...");
+        }
     }
 
     public void setTitle(String title, String status) {

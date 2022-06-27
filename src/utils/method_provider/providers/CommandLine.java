@@ -14,7 +14,9 @@ public class CommandLine extends CustomMethodProvider {
         ACCOUNT_CHECKER("ACCOUNTCHECKER", true),
         MULTI_ACCOUNT("MULTI", true),
         MULTI_ACCOUNT_FILE("MULTIACCOUNT", "string"),
-        HARDCORE_TUTORIAL_ISLAND("HARDCORE", true);
+        HARDCORE_TUTORIAL_ISLAND("HARDCORE", true),
+        BOT_LOGIN("LOGIN", "string"),
+        BOT_PASSWORD("PASSWORD", "string");
 
         public final String command;
         public final String type;
@@ -68,7 +70,7 @@ public class CommandLine extends CustomMethodProvider {
         String value;
         if (rawParameters != null && !rawParameters.isEmpty()) {
             logger.debug("rawParameters: " + rawParameters);
-            contents = rawParameters.split("\\.");
+            contents = rawParameters.split("\\.\\.");
             if (contents.length > 0) {
                 logger.info("Compiling raw command line parameters...");
                 for (int i = 0; i < contents.length; i += 2) {

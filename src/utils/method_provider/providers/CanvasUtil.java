@@ -35,7 +35,7 @@ public class CanvasUtil extends CustomMethodProvider {
     public void setTitle(String title, String status) {
         JFrame frame = getJFrame();
 
-        String finalTitle = "RuneLite | " + status + " | " + title;
+        String finalTitle = "RuneLite | " + getCommandLine().getString(CommandLine.Commands.BOT_LOGIN) + " | " + status + " | " + title;
         if (finalTitle.equals(frame.getTitle())) {
             return;
         }

@@ -1,6 +1,5 @@
 package activities.skills.agility;
 
-import org.osbot.C;
 import org.osbot.rs07.api.map.Area;
 import org.osbot.rs07.api.map.Position;
 

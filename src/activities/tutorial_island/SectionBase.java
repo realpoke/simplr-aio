@@ -4,7 +4,6 @@ import org.osbot.rs07.api.HintArrow;
 import org.osbot.rs07.api.map.Area;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.RS2Widget;
-import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.event.WalkingEvent;
 import org.osbot.rs07.utility.Condition;
 import utils.Sleep;

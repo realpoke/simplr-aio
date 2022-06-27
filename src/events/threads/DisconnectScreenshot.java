@@ -8,9 +8,9 @@ public class DisconnectScreenshot extends Event {
 
     @Override
     public int execute() throws InterruptedException {
-        if (getBot().getClient().getLoginState() == Client.LoginState.LOGIN_CONNECTING) {//40 = connection lost
+        if (getClient().getLoginState() == Client.LoginState.LOGIN_CONNECTING && myPlayer() != null && myPlayer().isVisible()) {
             log("Client connection lost!");
-            Utilities.takeScreenshot();
+            Utilities.takeScreenshot(); // TODO: Upload screenshot to web server
         }
         return 300;
     }

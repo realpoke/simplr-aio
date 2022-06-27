@@ -31,9 +31,6 @@ public class BottingMode extends AIOMode {
     public void setup(Bot bot, CustomMethodProvider customMethodProvider, String scriptInfo) {
         super.setup(bot, customMethodProvider, scriptInfo);
 
-        customMethodProvider.logger.info("Setting random window size...");
-        customMethodProvider.getCanvasUtil().setRandomSize();
-
         DisconnectScreenshot dcSs = new DisconnectScreenshot();
         dcSs.setAsync();
         customMethodProvider.execute(dcSs);

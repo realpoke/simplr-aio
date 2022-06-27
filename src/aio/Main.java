@@ -159,7 +159,6 @@ public final class Main extends Script {
     public void onExit() {
         if (customMethodProvider.getCanvasUtil() != null) {
             customMethodProvider.getCanvasUtil().setTitle(scriptInfo, "Stopping");
-            customMethodProvider.getCanvasUtil().resetTitle();
             customMethodProvider.getCanvasUtil().resetSize();
         }
         if (infoPaint != null) {
@@ -176,6 +175,9 @@ public final class Main extends Script {
         }
         if (runTime != null) {
             logger.info("Time ran: " + runTime.toString());
+        }
+        if (customMethodProvider.getCanvasUtil() != null) {
+            customMethodProvider.getCanvasUtil().resetTitle();
         }
         logger.info("Stopped: " + scriptInfo);
     }

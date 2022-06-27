@@ -65,10 +65,15 @@ public class LoginEvent extends BlockingExecutable implements LoginResponseCodeL
     private static final Rectangle EXISTING_USER_BUTTON = new Rectangle(400, 280, 120, 20);
     private static final Rectangle CANCEL_LOGIN_BUTTON = new Rectangle(398, 308, 126, 27);
     private static final Rectangle CANCEL_WORLD_SELECTOR_BUTTON = new Rectangle(712, 8, 42, 8);
-    private static final Rectangle BACK = new Rectangle(316, 316, 130, 28);
+    private static final Rectangle WORLD_SELECTOR_BUTTON = new Rectangle(15, 470, 80, 20);
+    private static final Rectangle WORLD = new Rectangle(440, 58, 42, 8);
+    private static final Rectangle BACK = new Rectangle(460, 62, 5, 5);
 
     private final String username, password;
+    private Boolean ShouldJumpWorld;
     private int maxRetries = 5;
+    private Boolean worldHopping = false;
+    private Boolean resetSize = true;
 
     private LoginEventResult loginEventResult;
     private int retryNumber = 0;
@@ -76,15 +81,28 @@ public class LoginEvent extends BlockingExecutable implements LoginResponseCodeL
     public LoginEvent(final String username, final String password) {
         this.username = username;
         this.password = password;
+        this.ShouldJumpWorld = false;
     }
 
     public LoginEvent(final String username, final String password, final int maxRetries) {
         this(username, password);
         this.maxRetries = maxRetries;
+        this.ShouldJumpWorld = false;
+    }
+
+    public LoginEvent(final String username, final String password, final int maxRetries, final Boolean ShouldJumpWorld) {
+        this(username, password);
+        this.maxRetries = maxRetries;
+        this.ShouldJumpWorld = ShouldJumpWorld;
     }
 
     @Override
     protected void blockingRun() {
+        if (resetSize) {
+            getCanvasUtil().resetSize();
+            resetSize = false;
+        }
+
         if (loginEventResult != null) {
             handleLoginResponse();
             loginEventResult = null;
@@ -133,7 +151,11 @@ public class LoginEvent extends BlockingExecutable implements LoginResponseCodeL
         switch (loginEventResult) {
             case MEMBERS_ACCOUNT_REQUIRED:
             case STANDING_IN_MEMBERS_ONLY_AREA:
-                setFinished();
+                if (ShouldJumpWorld) {
+                    GotoWorldScreen();
+                } else {
+                    setFinished();
+                }
                 break;
             case BANNED:
             case PASSWORD_CHANGE_REQUIRED:
@@ -167,21 +189,33 @@ public class LoginEvent extends BlockingExecutable implements LoginResponseCodeL
             case TRY_DIFFERENT_WORLD:
             case CLOSED_BETA:
             case INVALID_LOGIN_SERVER:
-                // Should hop to a different world here
-                throw new ExecutionFailedException("World problem: " + loginEventResult.message);
+                GotoWorldScreen();
+                break;
             case UNKNOWN:
             default:
-                throw new ExecutionFailedException("Unkown response code! (" + loginEventResult + ")");
+                throw new ExecutionFailedException("Unknown response code! (" + loginEventResult + ")");
         }
     }
 
     private boolean isOnWorldSelectorScreen() {
-        return false; //getColorPicker().isColorAt(50, 50, Color.BLACK);
+        return getColorPicker().isColorAt(50, 50, Color.BLACK);
     }
 
     private void cancelWorldSelection() {
-        if (clickButton(CANCEL_WORLD_SELECTOR_BUTTON)) {
+        if (worldHopping && clickButton(WORLD)) {
+            Sleep.sleepUntil(() -> !isOnWorldSelectorScreen(), 10_000);
+            worldHopping = false;
+            retryNumber++;
+        } else if (clickButton(CANCEL_WORLD_SELECTOR_BUTTON)) {
             Sleep.sleepUntil(() -> !isOnWorldSelectorScreen(), 3_000);
+        }
+    }
+
+    private void GotoWorldScreen() {
+        worldHopping = true;
+        if (!isOnWorldSelectorScreen()) {
+            clickButton(WORLD_SELECTOR_BUTTON);
+            Sleep.sleepUntil(this::isOnWorldSelectorScreen, 10_000);
         }
     }
 

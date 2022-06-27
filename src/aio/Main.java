@@ -139,7 +139,7 @@ public final class Main extends Script {
 
     private void exit() {
         if (customMethodProvider.getCommandLine().getBoolean(CommandLine.Commands.DUMP_ON_STOP)) {
-            String logName = displayName + "-LOGDUMP" + System.currentTimeMillis() + ".txt";
+            String logName = displayName + "-" + customMethodProvider.getCommandLine().getString(CommandLine.Commands.BOT_LOGIN) + "-LOGDUMP" + System.currentTimeMillis() + ".txt";
             logger.info(CommandLine.Commands.DUMP_ON_STOP.command + " is set, dumping full log: " + logName);
 
             FileManager file = new FileManager();

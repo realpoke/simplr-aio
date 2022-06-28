@@ -10,15 +10,11 @@ import java.util.HashMap;
 public class WebServer extends CustomMethodProvider {
 
     private final String base;
-    private final HashMap<String, String> headers;
+    private final HashMap<String, String> headers = new HashMap<>();
     private static HttpURLConnection connection;
 
-    public WebServer(String base, String key, HashMap<String, String> headers) {
+    public WebServer(String base, String key) {
 
-        logger.debug("Constructing WebServer class");
-        logger.debug("Base: " + base);
-
-        this.headers = headers;
         this.base = base;
 
         this.headers.put("Accept", "application/json");
@@ -41,8 +37,7 @@ public class WebServer extends CustomMethodProvider {
     }
 
     private String setupUrl(String path) {
-        logger.debug("Setting up url");
-        return this.base + path;
+        return java.net.URLDecoder.decode(base + path, StandardCharsets.UTF_8);
     }
 
     private static String urlEncodeUTF8(String s) {
@@ -66,7 +61,7 @@ public class WebServer extends CustomMethodProvider {
     private String apiRequest(String path, Methods method, HashMap<String, String> data) {
 
         try {
-            connection = (HttpURLConnection) new URL(this.setupUrl(path)).openConnection();
+            connection = (HttpURLConnection) new URL(setupUrl(path)).openConnection();
 
             connection.setDoOutput(true);
             connection.setRequestMethod(method.toString());
@@ -74,7 +69,7 @@ public class WebServer extends CustomMethodProvider {
                 connection.setRequestProperty(k,v);
             });
 
-            if (method.equals(Methods.GET)) {
+            if (method.equals(Methods.POST)) {
                 try (var wr = new DataOutputStream(connection.getOutputStream())) {
 
                     wr.write(urlEncodeUTF8(data).getBytes(StandardCharsets.UTF_8));
@@ -95,26 +90,20 @@ public class WebServer extends CustomMethodProvider {
                 }
             }
 
-            logger.debug("Content: " + content);
             return content.toString();
 
         } catch (IOException e) {
-            logger.error("IOException: " + e);
             throw new RuntimeException(e);
-        } finally {
-            connection.disconnect();
         }
 
     }
 
     public String get(String path) {
-        logger.debug("Get function ran, " + path);
-        return this.apiRequest(path, Methods.GET, new HashMap<>());
+        return apiRequest(path, Methods.GET, new HashMap<>());
     }
 
     public String post(String path, HashMap<String, String> data) {
-        logger.debug("Post function ran, " + path + " with: " + data);
-        return this.apiRequest(path, Methods.POST, data);
+        return apiRequest(path, Methods.POST, data);
     }
 
 }

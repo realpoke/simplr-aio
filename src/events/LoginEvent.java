@@ -66,7 +66,7 @@ public class LoginEvent extends BlockingExecutable implements LoginResponseCodeL
     private static final Rectangle CANCEL_LOGIN_BUTTON = new Rectangle(398, 308, 126, 27);
     private static final Rectangle CANCEL_WORLD_SELECTOR_BUTTON = new Rectangle(712, 8, 42, 8);
     private static final Rectangle WORLD_SELECTOR_BUTTON = new Rectangle(15, 470, 80, 20);
-    private static final Rectangle WORLD = new Rectangle(440, 58, 42, 8);
+    private static final Rectangle WORLD = new Rectangle(440, 52, 42, 8);
     private static final Rectangle BACK = new Rectangle(460, 62, 5, 5);
 
     private final String username, password;

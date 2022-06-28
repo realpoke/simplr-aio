@@ -16,7 +16,9 @@ public class CommandLine extends CustomMethodProvider {
         MULTI_ACCOUNT_FILE("MULTIACCOUNT", "string"),
         HARDCORE_TUTORIAL_ISLAND("HARDCORE", true),
         BOT_LOGIN("LOGIN", "string"),
-        BOT_PASSWORD("PASSWORD", "string");
+        BOT_PASSWORD("PASSWORD", "string"),
+        API_BASE("APIBASE", "string"),
+        API_KEY("APIKEY", "string");
 
         public final String command;
         public final String type;

@@ -4,6 +4,7 @@ import events.LoginEvent;
 import paint.*;
 import utils.Sleep;
 import utils.Timer;
+import utils.WebServer;
 import utils.file_manager.FileManager;
 import utils.method_provider.CustomMethodProvider;
 import org.osbot.rs07.script.Script;
@@ -14,6 +15,7 @@ import utils.method_provider.ExecutionFailedException;
 import utils.method_provider.providers.CommandLine;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 @ScriptManifest(name = "Simpl'r AIO", author = "ItPoke", info = "All In One", version = 2.0, logo = "")
 public final class Main extends Script {
@@ -187,6 +189,12 @@ public final class Main extends Script {
 
     @Override
     public void onExit() {
+        // TODO: Make a save util on the custom method provider to save the current user to the webserver
+        WebServer webServer = new WebServer(customMethodProvider.getCommandLine().getString(CommandLine.Commands.API_BASE), customMethodProvider.getCommandLine().getString(CommandLine.Commands.API_KEY));
+        logger.debug(webServer.post("account/" + customMethodProvider.getCommandLine().getString(CommandLine.Commands.BOT_LOGIN) + "/update", new HashMap<String, String>() {{
+            put("state", "idle");
+        }}));
+
         if (customMethodProvider.getCanvasUtil() != null) {
             customMethodProvider.getCanvasUtil().setTitle(scriptInfo, "Stopping");
             customMethodProvider.getCanvasUtil().resetSize();

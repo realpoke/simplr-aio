@@ -4,8 +4,10 @@ import org.osbot.rs07.api.ui.RS2Widget;
 import org.osbot.rs07.input.mouse.RectangleDestination;
 import org.osbot.rs07.listener.LoginResponseCodeListener;
 import utils.Sleep;
+import utils.WebServer;
 import utils.method_provider.BlockingExecutable;
 import utils.method_provider.ExecutionFailedException;
+import utils.method_provider.providers.CommandLine;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -66,7 +68,7 @@ public class LoginEvent extends BlockingExecutable implements LoginResponseCodeL
     private static final Rectangle CANCEL_LOGIN_BUTTON = new Rectangle(398, 308, 126, 27);
     private static final Rectangle CANCEL_WORLD_SELECTOR_BUTTON = new Rectangle(712, 8, 42, 8);
     private static final Rectangle WORLD_SELECTOR_BUTTON = new Rectangle(15, 470, 80, 20);
-    private static final Rectangle WORLD = new Rectangle(440, 52, 42, 8);
+    private static final Rectangle WORLD = new Rectangle(440, 52, 20, 4);
     private static final Rectangle BACK = new Rectangle(460, 62, 5, 5);
 
     private final String username, password;
@@ -97,7 +99,7 @@ public class LoginEvent extends BlockingExecutable implements LoginResponseCodeL
     }
 
     @Override
-    protected void blockingRun() {
+    protected void blockingRun() throws InterruptedException {
         if (resetSize) {
             getCanvasUtil().resetSize();
             resetSize = false;
@@ -118,6 +120,11 @@ public class LoginEvent extends BlockingExecutable implements LoginResponseCodeL
             Sleep.sleepUntil(() -> getBot().isLoaded(), 10_000);
         } else if (getClient().isLoggedIn() && getLobbyButton() == null) {
             logger.debug("Finished logging in!");
+            // TODO: Make a save util on the custom method provider to save the current user to the webserver
+            WebServer webServer = new WebServer(getCommandLine().getString(CommandLine.Commands.API_BASE), getCommandLine().getString(CommandLine.Commands.API_KEY));
+            logger.debug(webServer.post("account/" + getCommandLine().getString(CommandLine.Commands.BOT_LOGIN) + "/update", new HashMap<String, String>() {{
+                put("state", "running");
+            }}));
             Sleep.sleepUntil(() -> myPlayer().isVisible(), 5_000, 1_000);
             getLogoutTab().open();
             Sleep.sleepUntil(() -> getLogoutTab().isOpen(), 5_000, 1_000);
@@ -172,6 +179,12 @@ public class LoginEvent extends BlockingExecutable implements LoginResponseCodeL
             case TOO_MANY_INCORRECT_LOGINS:
             case ERROR_LOADING_PROFILE:
             case BILLING_SYSTEM:
+                // TODO: Make a save util on the custom method provider to save the current user to the webserver
+                WebServer webServer = new WebServer(getCommandLine().getString(CommandLine.Commands.API_BASE), getCommandLine().getString(CommandLine.Commands.API_KEY));
+                logger.debug(webServer.post("account/" + getCommandLine().getString(CommandLine.Commands.BOT_LOGIN) + "/update", new HashMap<String, String>() {{
+                    put("state", loginEventResult.toString());
+                    put("note", "Could not login: " + loginEventResult.message);
+                }}));
                 throw new ExecutionFailedException(loginEventResult.message);
             case ACCOUNT_ALREADY_LOGGED_IN:
             case TRY_AGAIN:

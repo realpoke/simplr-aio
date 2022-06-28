@@ -4,9 +4,14 @@ import activities.activity.Activity;
 import activities.activity.ActivityType;
 import activities.tutorial_island.sections.*;
 import utils.Sleep;
+import utils.WebServer;
+import utils.method_provider.providers.CommandLine;
+
+import java.util.HashMap;
 
 public final class TutorialIslandActivity extends Activity {
 
+    private boolean hasSetLocation = false;
     private static final Integer TUTORIAL_ISLAND_SECTION_CONFIG_ID = 406;
 
     private final SectionBase guideSection = new GuideSection();
@@ -30,6 +35,16 @@ public final class TutorialIslandActivity extends Activity {
 
     @Override
     public void runActivity() throws InterruptedException {
+        if (!hasSetLocation) {
+            hasSetLocation = true;
+
+            // TODO: Make a save util on the custom method provider to save the current user to the webserver
+            WebServer webServer = new WebServer(getCommandLine().getString(CommandLine.Commands.API_BASE), getCommandLine().getString(CommandLine.Commands.API_KEY));
+            logger.debug(webServer.post("account/" + getCommandLine().getString(CommandLine.Commands.BOT_LOGIN) + "/update", new HashMap<String, String>() {{
+                put("location", "Tutorial island");
+            }}));
+        }
+
         if (!getCamera().isAtTop())
             getCamera().toTop();
 

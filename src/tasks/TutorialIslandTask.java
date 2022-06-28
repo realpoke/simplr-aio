@@ -26,8 +26,9 @@ public class TutorialIslandTask extends Task {
     @Override
     public void onEnd() throws InterruptedException {
         if (getConfigs().get(281) == 1000) {
-            WebServer webServer = new WebServer("https://peachcorp.nl/");
-            webServer.saveAccountByEmail(getBot().getUsername());
+            // TODO: Save correctly
+            //WebServer webServer = new WebServer("https://peachcorp.nl/api/");
+            //webServer.saveAccountByEmail(getBot().getUsername());
         }
         super.onEnd();
     }

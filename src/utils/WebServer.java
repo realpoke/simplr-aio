@@ -1,71 +1,120 @@
 package utils;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import utils.method_provider.CustomMethodProvider;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Base64;
+import java.io.*;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 public class WebServer extends CustomMethodProvider {
 
-    private final String BaseAPI;
+    private final String base;
+    private final HashMap<String, String> headers;
+    private static HttpURLConnection connection;
 
-    public WebServer(String Server) {
+    public WebServer(String base, String key, HashMap<String, String> headers) {
 
-        this.BaseAPI = Server + "api/";
+        logger.debug("Constructing WebServer class");
+        logger.debug("Base: " + base);
+
+        this.headers = headers;
+        this.base = base;
+
+        this.headers.put("Accept", "application/json");
+        this.headers.put("User-Agent", "Java client");
+        this.headers.put("Content-Type", "application/x-www-form-urlencoded");
+        this.headers.put("Authorization", "Bearer " + key);
 
     }
 
-    private String apiCall(String API, HashMap<String, String> params) {
+    public enum Methods {
+
+        GET,
+        POST;
+
+        @Override
+        public String toString() {
+            char[] name = name().toUpperCase().toCharArray();
+            return new String(name);
+        }
+    }
+
+    private String setupUrl(String path) {
+        logger.debug("Setting up url");
+        return this.base + path;
+    }
+
+    private static String urlEncodeUTF8(String s) {
+        return URLEncoder.encode(s, StandardCharsets.UTF_8);
+    }
+
+    private static String urlEncodeUTF8(HashMap<String, String> map) {
+        StringBuilder sb = new StringBuilder();
+        map.forEach((k,v) -> {
+            if (sb.length() > 0) {
+                sb.append("&");
+            }
+            sb.append(String.format("%s=%s",
+                    urlEncodeUTF8(k),
+                    urlEncodeUTF8(v)
+            ));
+        });
+        return sb.toString();
+    }
+
+    private String apiRequest(String path, Methods method, HashMap<String, String> data) {
 
         try {
-            String pathAPI = BaseAPI + API;
-            URL url = new URL(pathAPI);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) new URL(this.setupUrl(path)).openConnection();
 
-            con.setRequestMethod("POST");
-            params.forEach(con::setRequestProperty);
-            con.connect();
+            connection.setDoOutput(true);
+            connection.setRequestMethod(method.toString());
+            headers.forEach((k,v) -> {
+                connection.setRequestProperty(k,v);
+            });
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            if (con.getResponseCode() <= 199 || con.getResponseCode() >= 300) {
+            if (method.equals(Methods.GET)) {
+                try (var wr = new DataOutputStream(connection.getOutputStream())) {
 
-                JsonParser parser = new JsonParser();
-                JsonElement json = parser.parse(br.readLine());
-                JsonObject jsonObject = json.getAsJsonObject();
-
-                return jsonObject.get("MESSAGE").toString();
-
+                    wr.write(urlEncodeUTF8(data).getBytes(StandardCharsets.UTF_8));
+                }
             }
 
-            return br.readLine();
+            StringBuilder content;
+
+            try (var br = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream()))) {
+
+                String line;
+                content = new StringBuilder();
+
+                while ((line = br.readLine()) != null) {
+                    content.append(line);
+                    content.append(System.lineSeparator());
+                }
+            }
+
+            logger.debug("Content: " + content);
+            return content.toString();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("IOException: " + e);
+            throw new RuntimeException(e);
+        } finally {
+            connection.disconnect();
         }
-
-        return null;
 
     }
 
-    public String saveAccountByEmail(String email) {
+    public String get(String path) {
+        logger.debug("Get function ran, " + path);
+        return this.apiRequest(path, Methods.GET, new HashMap<>());
+    }
 
-        Base64.Encoder encoder = Base64.getEncoder();
-        String base64Email = encoder.encodeToString(email.getBytes());
-        logger.debug("Encoded email: " + base64Email);
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("email", base64Email);
-
-        return apiCall("updateoot", params);
-
+    public String post(String path, HashMap<String, String> data) {
+        logger.debug("Post function ran, " + path + " with: " + data);
+        return this.apiRequest(path, Methods.POST, data);
     }
 
 }

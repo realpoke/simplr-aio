@@ -11,7 +11,7 @@ import utils.widget.filters.WidgetActionFilter;
 
 public class FightingSection extends SectionBase {
 
-    private static final Area LADDER_AREA = new Area(3108, 9523, 3114, 9529);
+    private static final Area LADDER_AREA = new Area(3109, 9525, 3112, 9528);
     private final CachedWidget VIEW_EQUIPMENT_STATS_WIDGET = new CachedWidget(new WidgetActionFilter("View equipment stats"));
 
     public FightingSection() {
@@ -91,12 +91,20 @@ public class FightingSection extends SectionBase {
             case 500:
                 if (!LADDER_AREA.contains(myPosition())) {
                     walkTo(LADDER_AREA);
-                } else if (getObjects().closest("Ladder").interact("Climb-up")) {
+                }
+                if (getObjects().closest("Ladder").interact("Climb-up")) {
                     Sleep.sleepUntil(() -> !LADDER_AREA.contains(myPosition()), 7_000);
                     if (LADDER_AREA.contains(myPosition())) {
                         getCamera().toEntityMouse(getObjects().closest("Ladder"));
                         getMouse().moveOutsideScreen();
+                        if (getObjects().closest("Ladder") != null)
+                            getObjects().closest("Ladder").interact();
                     }
+                }
+                if (getObjects().closest("Ladder") != null) {
+                    walkTo(LADDER_AREA);
+                    getCamera().toEntityMouse(getObjects().closest("Ladder"));
+                    getObjects().closest("Ladder").interact("Climb-up");
                 }
                 break;
             default:

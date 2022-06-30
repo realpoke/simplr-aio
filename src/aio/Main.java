@@ -170,6 +170,15 @@ public final class Main extends Script {
     }
 
     private void exit() {
+        if (customMethodProvider.getCommandLine().getBoolean(CommandLine.Commands.KILL_ON_STOP)) {
+            // TODO: Make a save util on the custom method provider to save the current user to the webserver
+            WebServer webServer = new WebServer(customMethodProvider.getCommandLine().getString(CommandLine.Commands.API_BASE), customMethodProvider.getCommandLine().getString(CommandLine.Commands.API_KEY));
+            logger.debug(webServer.post("account/" + customMethodProvider.getCommandLine().getString(CommandLine.Commands.BOT_LOGIN) + "/update", new HashMap<String, String>() {{
+                put("state", "idle");
+            }}));
+
+            logger.info(CommandLine.Commands.KILL_ON_STOP.command + " is set, killing client!");
+        }
         if (customMethodProvider.getCommandLine().getBoolean(CommandLine.Commands.DUMP_ON_STOP)) {
             String logName = displayName + "-" + customMethodProvider.getCommandLine().getString(CommandLine.Commands.BOT_LOGIN) + "-LOGDUMP" + System.currentTimeMillis() + ".txt";
             logger.info(CommandLine.Commands.DUMP_ON_STOP.command + " is set, dumping full log: " + logName);
@@ -180,17 +189,10 @@ public final class Main extends Script {
 
             file.lockWrite(logger.getBuffer(), logName);
         }
-        if (customMethodProvider.getCommandLine().getBoolean(CommandLine.Commands.KILL_ON_STOP)) {
-            // TODO: Make a save util on the custom method provider to save the current user to the webserver
-            WebServer webServer = new WebServer(customMethodProvider.getCommandLine().getString(CommandLine.Commands.API_BASE), customMethodProvider.getCommandLine().getString(CommandLine.Commands.API_KEY));
-            logger.debug(webServer.post("account/" + customMethodProvider.getCommandLine().getString(CommandLine.Commands.BOT_LOGIN) + "/update", new HashMap<String, String>() {{
-                put("state", "idle");
-            }}));
-
-            logger.info(CommandLine.Commands.KILL_ON_STOP.command + " is set, killing client!");
+        if (customMethodProvider.getCommandLine().getBoolean(CommandLine.Commands.KILL_ON_STOP))
             System.exit(0);
-        }
-        stop(false);
+        else
+            stop(false);
     }
 
     @Override

@@ -97,6 +97,9 @@ public class MiningSection extends SectionBase {
     }
 
     private void smith() {
+        if (myPosition().distance(getObjects().closest("Anvil").getPosition()) > 6) {
+            getWalking().walk(getObjects().closest("Anvil").getPosition().getArea(3).getRandomPosition());
+        }
         if (getInventory().useOn("Bronze bar", "Anvil")) {
             Sleep.sleepUntil(() -> getDaggerWidget().isPresent(), 7_000);
             if (!getDaggerWidget().isPresent()) {

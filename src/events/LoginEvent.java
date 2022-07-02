@@ -64,6 +64,7 @@ public class LoginEvent extends BlockingExecutable implements LoginResponseCodeL
 
     private static final Rectangle TRY_AGAIN_BUTTON = new Rectangle(318, 262, 130, 26);
     private static final Rectangle LOGIN_BUTTON = new Rectangle(240, 310, 120, 20);
+    private static final Rectangle OK_BUTTON = new Rectangle(321, 290, 120, 20);
     private static final Rectangle EXISTING_USER_BUTTON = new Rectangle(400, 280, 120, 20);
     private static final Rectangle CANCEL_LOGIN_BUTTON = new Rectangle(398, 308, 126, 27);
     private static final Rectangle CANCEL_WORLD_SELECTOR_BUTTON = new Rectangle(712, 8, 42, 8);
@@ -131,7 +132,9 @@ public class LoginEvent extends BlockingExecutable implements LoginResponseCodeL
             setFinished();
         }
 
-        if (getLobbyButton() != null) {
+        if (isOkButton()) {
+            clickButton(OK_BUTTON);
+        } else if (getLobbyButton() != null) {
             logger.debug("Clicking lobby button...");
             clickLobbyButton();
         } else if (isOnWorldSelectorScreen()) {
@@ -212,6 +215,10 @@ public class LoginEvent extends BlockingExecutable implements LoginResponseCodeL
 
     private boolean isOnWorldSelectorScreen() {
         return getColorPicker().isColorAt(50, 50, Color.BLACK);
+    }
+
+    private boolean isOkButton() {
+        return getColorPicker().isColorAt(389, 305, Color.white) && getColorPicker().isColorAt(377, 296, Color.white);
     }
 
     private void cancelWorldSelection() {

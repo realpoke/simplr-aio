@@ -56,7 +56,9 @@ public class WizardSection extends SectionBase {
 
         if ((!getCommandLine().getBoolean(CommandLine.Commands.HARDCORE_TUTORIAL_ISLAND) || isIronman) && pendingQuestion()) {
             logger.debug("Question");
-            selectQuestionOption();
+            if (!selectQuestionOption()) {
+                getWalking().walk(myPosition().getArea(4).getRandomPosition());
+            }
             return;
         }
 

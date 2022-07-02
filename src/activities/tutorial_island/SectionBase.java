@@ -143,7 +143,15 @@ public abstract class SectionBase extends Executable {
             }
             return !dialogueExperienceWidget.isVisible(getWidgets());
         }
-        return getDialogues().selectOption(INSTRUCTOR_DIALOGUE_OPTIONS);
+        for (String instructor_dialogue_option : INSTRUCTOR_DIALOGUE_OPTIONS) {
+            logger.debug("option: " + instructor_dialogue_option);
+            if (getWidgets().getWidgetContainingText(instructor_dialogue_option) != null) {
+                logger.debug("option found widget: " + instructor_dialogue_option);
+                return getDialogues().selectOption(INSTRUCTOR_DIALOGUE_OPTIONS);
+            }
+        }
+        logger.debug("option failed: false");
+        return false;
     }
 
     protected boolean selectContinue() {

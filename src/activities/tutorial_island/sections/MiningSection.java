@@ -34,7 +34,9 @@ public class MiningSection extends SectionBase {
     @Override
     public void run() throws InterruptedException {
         if (pendingQuestion()) {
-            selectQuestionOption();
+            if (!selectQuestionOption()) {
+                getWalking().walk(myPosition().getArea(4).getRandomPosition());
+            }
             return;
         }
 

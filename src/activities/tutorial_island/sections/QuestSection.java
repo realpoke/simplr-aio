@@ -18,7 +18,9 @@ public class QuestSection extends SectionBase {
         logger.debug("Z-Height: " + myPosition().getZ());
 
         if (pendingQuestion()) {
-            selectQuestionOption();
+            if (!selectQuestionOption()) {
+                getWalking().walk(myPosition().getArea(4).getRandomPosition());
+            }
             return;
         }
 

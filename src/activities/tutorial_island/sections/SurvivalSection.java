@@ -25,7 +25,9 @@ public class SurvivalSection extends SectionBase {
         super.setProgress(getProgress());
 
         if (pendingQuestion()) {
-            selectQuestionOption();
+            if (!selectQuestionOption()) {
+                getWalking().walk(myPosition().getArea(4).getRandomPosition());
+            }
             return;
         }
 

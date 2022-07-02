@@ -94,16 +94,14 @@ public class FightingSection extends SectionBase {
                 if (!LADDER_AREA.contains(myPosition())) {
                     walkTo(LADDER_AREA);
                 }
-                if (getObjects().closest("Ladder").interact("Climb-up")) {
+                if (getObjects().closest("Ladder") != null && getObjects().closest("Ladder").interact("Climb-up") && getObjects().closest("Ladder").hasAction("Climb-up")) {
                     Sleep.sleepUntil(() -> !LADDER_AREA.contains(myPosition()), 7_000);
                     if (LADDER_AREA.contains(myPosition())) {
                         getCamera().toEntityMouse(getObjects().closest("Ladder"));
                         getMouse().moveOutsideScreen();
-                        if (getObjects().closest("Ladder") != null)
-                            getObjects().closest("Ladder").interact();
                     }
                 }
-                if (getObjects().closest("Ladder") != null) {
+                if (getObjects().closest("Ladder") != null && getObjects().closest("Ladder").hasAction("Climb-up")) {
                     walkTo(LADDER_AREA);
                     getCamera().toEntityMouse(getObjects().closest("Ladder"));
                     getObjects().closest("Ladder").interact("Climb-up");

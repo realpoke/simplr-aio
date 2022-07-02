@@ -78,19 +78,19 @@ public class ExtendedCamera extends Camera {
         int r = random(0, 30);
         if (r > 15)
             r = 375 - r;
-        moveYaw(r);
+        moveYawMouse(r);
     }
 
     public void moveWest() {
-        moveYaw(75 + random(0, 30));
+        moveYawMouse(75 + random(0, 30));
     }
 
     public void moveSouth() {
-        moveYaw(165 + random(0, 30));
+        moveYawMouse(165 + random(0, 30));
     }
 
     public void moveEast() {
-        moveYaw(255 + random(0, 30));
+        moveYawMouse(255 + random(0, 30));
     }
 
     public boolean movePitch(int pitch) {
@@ -98,10 +98,10 @@ public class ExtendedCamera extends Camera {
         return true;
     }
 
-    //public boolean moveYaw(int yaw) {
-    //    moveCamera(yaw, getPitchAngle());
-    //    return true;
-    //}
+    public boolean moveYawMouse(int yaw) {
+        moveCamera(yaw, getPitchAngle());
+        return true;
+    }
 
     public void moveCamera(int yaw, int pitch) {
         if (pitch > 67)

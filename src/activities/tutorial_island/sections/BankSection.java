@@ -39,6 +39,8 @@ public class BankSection extends SectionBase {
                     }
                     if (getObjects().closest("Bank booth").interact("Use")) {
                         Sleep.sleepUntil(() -> getBank().isOpen(), 15_000, 1_000);
+                    } else {
+                        getCamera().moveEast();
                     }
                 } else {
                     RS2Object door = getDoorHandler().getNextObstacle(getObjects().closest("Bank booth"));

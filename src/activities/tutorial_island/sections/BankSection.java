@@ -33,6 +33,12 @@ public class BankSection extends SectionBase {
 
         switch (getProgress()) {
             case 510:
+                if (getObjects().closest("Bank booth") == null) {
+                    if (getObjects().closest("Ladder") != null) {
+                        getCamera().toEntityMouse(getObjects().closest("Ladder"));
+                        getObjects().closest("Ladder").interact();
+                    }
+                }
                 if (getMap().canReach(getObjects().closest("Bank booth"))) {
                     if (!getObjects().closest("Bank booth").isVisible()) {
                         getCamera().toEntityMouse(getObjects().closest("Bank booth"));

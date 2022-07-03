@@ -44,10 +44,10 @@ public class BankSection extends SectionBase {
                     }
                 } else {
                     RS2Object door = getDoorHandler().getNextObstacle(getObjects().closest("Bank booth"));
-                    if (!door.isVisible()) {
+                    if (door != null && door.isVisible()) {
                         getCamera().toEntityMouse(door);
                     }
-                    if (door.isVisible()) {
+                    if (door != null && door.isVisible()) {
                         door.interact("Open");
                     } else {
                         getDoorHandler().handleNextObstacle(getObjects().closest("Bank booth"));
